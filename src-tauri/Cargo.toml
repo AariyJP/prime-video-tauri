@@ -1,6 +1,6 @@
 [package]
 name = "prime-video-tauri"
-version = "0.0.0"
+version = "0.0.1"
 description = ""
 authors = ["AariyJP"]
 edition = "2021"
