@@ -27,47 +27,32 @@ fn make_activity() -> activity::Activity<'static> {
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
-
     use std::env;
     use std::path::PathBuf;
-    
+
     let user_profile = env::var("USERPROFILE").unwrap_or_default();
     let local_app_data = env::var("LOCALAPPDATA").unwrap_or_default();
-    
+
     env::set_var(
         "WEBVIEW2_USER_DATA_FOLDER",
-        PathBuf::from(&local_app_data).join("net.aariy.wb2")
+        PathBuf::from(&local_app_data).join("net.aariy.wb2"),
     );
-    
-    let fonter_path = PathBuf::from(&user_profile)
-        .join("git")
-        .join("fonter");
-    let adg_path = PathBuf::from(&user_profile)
-        .join("git")
-        .join("adg");
 
-    let mut context: tauri::Context<tauri::Wry> = tauri::generate_context!();
-
-    if let Some(window) = context.config_mut().app.windows.get_mut(0) {
-        window.additional_browser_args = Some(format!(
-            "--load-extension={},{} --disable-gpu",
-            fonter_path.to_string_lossy(),
-            adg_path.to_string_lossy()
-        ));
-    }
-    
     let discord_state = DiscordState {
         client: Mutex::new(None),
     };
 
     tauri::Builder::default()
         .manage(discord_state)
-        .setup(|app| {
+        .setup(move |app| {
+
+            let fonter_path = PathBuf::from(&user_profile).join("git").join("fonter");
+            let adg_path = PathBuf::from(&user_profile).join("git").join("adg");
+
             let handle = app.handle();
             let discord_state: tauri::State<DiscordState> = handle.state();
             let mut client_lock = discord_state.client.lock().unwrap();
 
-            // IMPORTANT: Replace "123456789012345678" with your actual Discord App Client ID
             let mut client = DiscordIpcClient::new("739528267039768647");
 
             if client.connect().is_ok() {
@@ -79,9 +64,42 @@ pub fn run() {
                 println!("Failed to connect to Discord.");
             }
 
+            tauri::WebviewWindowBuilder::new(
+                app,
+                "main",
+                tauri::WebviewUrl::App("https://www.amazon.co.jp/gp/video/storefront".into()),
+            )
+            .title("Prime Video")
+            .inner_size(1280.0, 800.0)
+            .decorations(true)
+            .browser_extensions_enabled(true)
+            .additional_browser_args(
+                format!(
+                    "--load-extension={},{} --disable-gpu",
+                    fonter_path.to_string_lossy(),
+                    adg_path.to_string_lossy()
+                )
+                .as_str(),
+            )
+            .initialization_script(
+                r#"
+                Object.defineProperty(window, 'EmbeddedBrowserWebView', {
+                    value: undefined,
+                    writable: false,
+                    configurable: false
+                });
+                Object.defineProperty(window, 'chrome', {
+                    value: undefined,
+                    writable: false,
+                    configurable: false
+                });
+                "#
+            )
+            .build()?;
+
             Ok(())
         })
         .plugin(tauri_plugin_opener::init())
-        .run(context)
+        .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }

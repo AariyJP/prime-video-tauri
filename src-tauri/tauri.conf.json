@@ -6,16 +6,6 @@
   "build": {},
   "app": {
     "withGlobalTauri": true,
-    "windows": [
-      {
-        "label": "main",
-        "browserExtensionsEnabled": true,
-        "title": "Prime Video",
-        "width": 1280,
-        "height": 800,
-        "url": "https://www.amazon.co.jp/gp/video/storefront"
-      }
-    ],
     "security": {
       "csp": null,
       "dangerousDisableAssetCspModification": true
