@@ -1,8 +1,8 @@
 [package]
 name = "prime-video-tauri"
 version = "0.0.1"
-description = ""
-authors = ["AariyJP"]
+description = "A Tauri App"
+authors = ["you"]
 edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
@@ -18,7 +18,7 @@ crate-type = ["staticlib", "cdylib", "rlib"]
 tauri-build = { version = "2", features = [] }
 
 [dependencies]
-tauri = { version = "^2.6", features = [] }
+tauri = { version = "^2.6", features = ["devtools"] }
 discord-rich-presence = "1"
 chrono = "0.4.38"
 # tauri = { version = "2", features = [] }

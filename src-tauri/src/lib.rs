@@ -7,12 +7,6 @@ struct DiscordState {
     client: Mutex<Option<DiscordIpcClient>>,
 }
 
-// Learn more about Tauri commands at https://tauri.app/develop/calling-rust/
-#[tauri::command]
-fn greet(name: &str) -> String {
-    format!("Hello, {}! You've been greeted from Rust!", name)
-}
-
 fn make_activity() -> activity::Activity<'static> {
     let start_time = SystemTime::now()
         .duration_since(UNIX_EPOCH)
@@ -33,6 +27,28 @@ fn make_activity() -> activity::Activity<'static> {
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
+
+    use std::env;
+    use std::path::PathBuf;
+    
+    let user_profile = env::var("USERPROFILE").unwrap_or_default();
+    let fonter_path = PathBuf::from(&user_profile)
+        .join("git")
+        .join("fonter");
+    let adg_path = PathBuf::from(&user_profile)
+        .join("git")
+        .join("adg");
+
+    let mut context: tauri::Context<tauri::Wry> = tauri::generate_context!();
+
+    if let Some(window) = context.config_mut().app.windows.get_mut(0) {
+        window.additional_browser_args = Some(format!(
+            "--load-extension={},{} --disable-gpu",
+            fonter_path.to_string_lossy(),
+            adg_path.to_string_lossy()
+        ));
+    }
+    
     let discord_state = DiscordState {
         client: Mutex::new(None),
     };
@@ -59,14 +75,6 @@ pub fn run() {
             Ok(())
         })
         .plugin(tauri_plugin_opener::init())
-        .invoke_handler(tauri::generate_handler![greet])
-        .on_window_event(|window, event| {
-            if let tauri::WindowEvent::CloseRequested { .. } = event {
-                if let Some(client) = window.state::<DiscordState>().client.lock().unwrap().as_mut() {
-                    let _ = client.close();
-                }
-            }
-        })
-        .run(tauri::generate_context!())
+        .run(context)
         .expect("error while running tauri application");
 }
