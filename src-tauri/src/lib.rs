@@ -32,6 +32,13 @@ pub fn run() {
     use std::path::PathBuf;
     
     let user_profile = env::var("USERPROFILE").unwrap_or_default();
+    let local_app_data = env::var("LOCALAPPDATA").unwrap_or_default();
+    
+    env::set_var(
+        "WEBVIEW2_USER_DATA_FOLDER",
+        PathBuf::from(&local_app_data).join("net.aariy.wb2")
+    );
+    
     let fonter_path = PathBuf::from(&user_profile)
         .join("git")
         .join("fonter");
