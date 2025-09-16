@@ -15,10 +15,13 @@ body, button, input, select, textarea {
 {
     display: none !important;
 }
-#nav-belt, #dv-web-player, .FbDt\+p {
+#nav-belt, .FbDt\+p {
     -webkit-app-region: drag!important;
 }
+.atvwebplayersdk-hideabletopbuttons-container, .tooltip {
+    -webkit-app-region: no-drag!important;
+}
 #nav-search {
-    margin-right: 20vh!important;
-    margin-left: 20vh!important;
+    margin-right: 25vh!important;
+    margin-left: 25vh!important;
 }
