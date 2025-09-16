@@ -5,9 +5,20 @@
 body, button, input, select, textarea {
     font-family: var(--f-ext);
 }
-#nav-main, #nav-global-location-popover-link, #nav-tools>.nav-a {
+#nav-main,
+#nav-global-location-popover-link,
+#icp-nav-flyout,
+#nav-tools>.nav-a, .nav-item:not(#nav-item-switch-account):not(#nav-item-signout),
+#nav-al-wishlist,
+.nav-flyout-sidePanel,
+#nav-logo
+{
     display: none !important;
 }
 #nav-belt, #dv-web-player, .FbDt\+p {
     -webkit-app-region: drag!important;
+}
+#nav-search {
+    margin-right: 20vh!important;
+    margin-left: 20vh!important;
 }
