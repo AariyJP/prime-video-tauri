@@ -30,8 +30,7 @@ pub fn run() {
     use std::env;
     use std::path::PathBuf;
 
-    let user_profile = env::var("USERPROFILE").unwrap_or_default();
-    let local_app_data = env::var("LOCALAPPDATA").unwrap_or_default();
+    let local_app_data = env::var("localappdata").unwrap_or_default();
 
     env::set_var(
         "WEBVIEW2_USER_DATA_FOLDER",
@@ -45,14 +44,9 @@ pub fn run() {
     tauri::Builder::default()
         .manage(discord_state)
         .setup(move |app| {
-
-            let fonter_path = PathBuf::from(&user_profile).join("git").join("fonter");
-            let adg_path = PathBuf::from(&user_profile).join("git").join("adg");
-
             let handle = app.handle();
             let discord_state: tauri::State<DiscordState> = handle.state();
             let mut client_lock = discord_state.client.lock().unwrap();
-
             let mut client = DiscordIpcClient::new("739528267039768647");
 
             if client.connect().is_ok() {
@@ -64,6 +58,9 @@ pub fn run() {
                 println!("Failed to connect to Discord.");
             }
 
+            let exe_path = std::env::current_exe().expect("Failed to get current exe path");
+            let exe_dir = exe_path.parent().expect("Failed to get parent directory");
+
             tauri::WebviewWindowBuilder::new(
                 app,
                 "main",
@@ -71,13 +68,13 @@ pub fn run() {
             )
             .title("Prime Video")
             .inner_size(1280.0, 800.0)
-            .decorations(true)
+            .decorations(false)
             .browser_extensions_enabled(true)
             .additional_browser_args(
                 format!(
                     "--load-extension={},{} --disable-gpu",
-                    fonter_path.to_string_lossy(),
-                    adg_path.to_string_lossy()
+                    exe_dir.join("adg").to_str().unwrap(),
+                    exe_dir.join("ext").to_str().unwrap()
                 )
                 .as_str(),
             )

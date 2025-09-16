@@ -1,0 +1,10 @@
+{
+    "name": "prime-video-tauri-extension",
+    "version": "0",
+    "host_permissions": ["<all_urls>"],
+    "content_scripts": [{
+        "css": ["custom.css"],
+        "matches": ["<all_urls>"]
+    }],
+    "manifest_version": 3
+}

@@ -1,0 +1,13 @@
+:root body, :root button, :root input, :root select, :root textarea{
+    --f-ext: "gg sans", roboto, system-ui;
+    font-family: var(--f-ext);
+}
+body, button, input, select, textarea {
+    font-family: var(--f-ext);
+}
+#nav-main, #nav-global-location-popover-link, #nav-tools>.nav-a {
+    display: none !important;
+}
+#nav-belt, #dv-web-player, .FbDt\+p {
+    -webkit-app-region: drag!important;
+}
