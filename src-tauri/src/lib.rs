@@ -74,6 +74,7 @@ pub fn run() {
             )
             .title("Prime Video")
             .inner_size(1280.0, 800.0)
+            .min_inner_size(990.0, 600.0)
             .background_color(tauri::utils::config::Color(45, 45, 45, 255))
             .decorations(false)
             .browser_extensions_enabled(true)
