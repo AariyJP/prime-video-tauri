@@ -61,6 +61,12 @@ pub fn run() {
             let exe_path = std::env::current_exe().expect("Failed to get current exe path");
             let exe_dir = exe_path.parent().expect("Failed to get parent directory");
 
+            let cdp_flag = if cfg!(debug_assertions) {
+                " --remote-debugging-port=9222"
+            } else {
+                ""
+            };
+
             tauri::WebviewWindowBuilder::new(
                 app,
                 "main",
@@ -68,30 +74,20 @@ pub fn run() {
             )
             .title("Prime Video")
             .inner_size(1280.0, 800.0)
+            .min_inner_size(990.0, 600.0)
+            .background_color(tauri::utils::config::Color(45, 45, 45, 255))
             .decorations(false)
             .browser_extensions_enabled(true)
             .additional_browser_args(
                 format!(
-                    "--load-extension={},{} --disable-gpu",
+                    "--load-extension={},{} --disable-gpu{}",
                     exe_dir.join("adg").to_str().unwrap(),
-                    exe_dir.join("ext").to_str().unwrap()
+                    exe_dir.join("ext").to_str().unwrap(),
+                    cdp_flag
                 )
                 .as_str(),
             )
-            .initialization_script(
-                r#"
-                Object.defineProperty(window, 'EmbeddedBrowserWebView', {
-                    value: undefined,
-                    writable: false,
-                    configurable: false
-                });
-                Object.defineProperty(window, 'chrome', {
-                    value: undefined,
-                    writable: false,
-                    configurable: false
-                });
-                "#
-            )
+            .initialization_script(include_str!("init-script.js"))
             .build()?;
 
             Ok(())
