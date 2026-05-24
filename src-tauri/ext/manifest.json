@@ -4,7 +4,8 @@
     "host_permissions": ["<all_urls>"],
     "content_scripts": [{
         "css": ["custom.css"],
-        "matches": ["<all_urls>"]
+        "matches": ["<all_urls>"],
+        "run_at": "document_start"
     }],
     "manifest_version": 3
 }
