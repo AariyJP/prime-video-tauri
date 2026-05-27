@@ -28,14 +28,6 @@ fn make_activity() -> activity::Activity<'static> {
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     use std::env;
-    use std::path::PathBuf;
-
-    let local_app_data = env::var("localappdata").unwrap_or_default();
-
-    env::set_var(
-        "WEBVIEW2_USER_DATA_FOLDER",
-        PathBuf::from(&local_app_data).join("net.aariy.wb2"),
-    );
 
     let discord_state = DiscordState {
         client: Mutex::new(None),
