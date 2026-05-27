@@ -1,101 +1,49 @@
-name: Release
+name: Build
 
 on:
   push:
-    branches:
+    branches-ignore:
       - main
 
-permissions:
-  contents: write
-
 concurrency:
-  group: release-main
-  cancel-in-progress: false
+  group: ${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
-  set_version:
-    runs-on: ubuntu-latest
-    outputs:
-      app_version: ${{ steps.version.outputs.app_version }}
-      msix_version: ${{ steps.version.outputs.msix_version }}
-      release_version: ${{ steps.version.outputs.release_version }}
-      artifact_version: ${{ steps.version.outputs.artifact_version }}
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - platform: windows-latest
+            target: x86_64-pc-windows-msvc
+            name: windows-x64
+
+    runs-on: ${{ matrix.platform }}
+
     steps:
-      - uses: actions/checkout@v5
-      - id: version
-        shell: bash
-        run: |
-          set -euo pipefail
-          raw="$(git log -1 --pretty=%s)"
-          raw="${raw#v}"
+      - uses: actions/checkout@v4
 
-          if [[ ! "${raw}" =~ ^[0-9]+[.][0-9]+[.][0-9]+([.][0-9]+)?$ ]]; then
-            echo "::error::The main commit title must be a version number: ${raw}"
-            exit 1
-          fi
-
-          IFS=. read -r major minor patch revision <<< "${raw}"
-          app_version="${major}.${minor}.${patch}"
-          revision="${revision:-${GITHUB_RUN_NUMBER}}"
-          msix_version="${app_version}.${revision}"
-          release_version="${raw}"
-
-          for part in "${major}" "${minor}" "${patch}" "${revision}"; do
-            if (( part > 65535 )); then
-              echo "::error::MSIX version component exceeds 65535: ${part}"
-              exit 1
-            fi
-          done
-
-          git_hash="$(git rev-parse --short "${GITHUB_SHA}")"
-          artifact_version="${app_version}-${git_hash}"
-
-          echo "app_version=${app_version}" >> "${GITHUB_OUTPUT}"
-          echo "msix_version=${msix_version}" >> "${GITHUB_OUTPUT}"
-          echo "release_version=${release_version}" >> "${GITHUB_OUTPUT}"
-          echo "artifact_version=${artifact_version}" >> "${GITHUB_OUTPUT}"
-
-  build_windows:
-    runs-on: windows-latest
-    needs: set_version
-    steps:
-      - uses: actions/checkout@v5
       - uses: pnpm/action-setup@v4
         with:
-          version: 11.2.2
-          run_install: false
+          version: 10
+
       - uses: actions/setup-node@v4
         with:
           node-version: lts/*
           cache: pnpm
+
       - uses: dtolnay/rust-toolchain@stable
-      - name: Restore dependencies
-        run: pnpm install --frozen-lockfile
-      - name: Set version
-        run: node scripts/set-version.mjs "${{ needs.set_version.outputs.app_version }}"
-      - name: Build application
-        run: pnpm build
-      - name: Build MSIX
-        shell: pwsh
-        run: .\scripts\build-msix.ps1 -SkipBuild -Version "${{ needs.set_version.outputs.msix_version }}"
-      - name: Upload MSIX artifacts
-        uses: actions/upload-artifact@v5
         with:
-          name: PrimeVideoTauri-${{ needs.set_version.outputs.artifact_version }}-windows-x64
-          path: |
-            src-tauri/target/msix/*.msix
-            src-tauri/target/msix/*.msixupload
-            src-tauri/target/msix/*.appxsym
-      - name: Create GitHub release
-        shell: pwsh
-        env:
-          GH_TOKEN: ${{ github.token }}
-          RELEASE_TAG: ${{ needs.set_version.outputs.release_version }}
-          RELEASE_TITLE: Prime Video Tauri ${{ needs.set_version.outputs.release_version }}
-        run: |
-          $releaseFiles = @(
-            (Get-Item "src-tauri/target/msix/*.msix").FullName
-            (Get-Item "src-tauri/target/msix/*.msixupload").FullName
-            (Get-Item "src-tauri/target/msix/*.appxsym").FullName
-          )
-          gh release create $env:RELEASE_TAG $releaseFiles --target $env:GITHUB_SHA --title $env:RELEASE_TITLE --notes $env:RELEASE_TITLE
+          targets: ${{ matrix.target }}
+
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: src-tauri
+          key: ${{ matrix.target }}
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build Tauri app
+        run: pnpm build
