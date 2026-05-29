@@ -6,11 +6,7 @@
   "packageManager": "pnpm@11.2.2",
   "scripts": {
     "dev": "tauri dev",
-    "build": "tauri build --no-bundle",
-    "version:bump": "node scripts/bump-version.mjs",
-    "version:patch": "node scripts/bump-version.mjs patch",
-    "version:minor": "node scripts/bump-version.mjs minor",
-    "version:major": "node scripts/bump-version.mjs major"
+    "build": "tauri build --no-bundle"
   },
   "dependencies": {
     "@tauri-apps/api": "^2",

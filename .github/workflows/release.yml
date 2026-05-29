@@ -85,27 +85,19 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Bump version
-        run: pnpm version:bump "${{ needs.set_version.outputs.version }}"
-
-      - name: Build Tauri app
-        run: pnpm build
-
-      - name: Build MSIX
-        shell: pwsh
-        run: .\scripts\build-msix.ps1 -SkipBuild -Version "${{ needs.set_version.outputs.version }}"
-
-      - name: Upload release assets
-        shell: pwsh
-        env:
-          GH_TOKEN: ${{ github.token }}
+      - name: Set version
+        shell: bash
         run: |
-          $releaseFiles = @(
-            (Get-Item "src-tauri/target/msix/*.msix").FullName
-            (Get-Item "src-tauri/target/msix/*.msixupload").FullName
-            (Get-Item "src-tauri/target/msix/*.appxsym").FullName
-          )
-          gh release upload "${{ needs.set_version.outputs.version }}" $releaseFiles --clobber
+          VERSION="${{ needs.set_version.outputs.version }}"
+          sed -i "s/\"version\": \"[0-9]*\.[0-9]*\.[0-9]*\"/\"version\": \"${VERSION}\"/" package.json
+          sed -i "s/\"version\": \"[0-9]*\.[0-9]*\.[0-9]*\"/\"version\": \"${VERSION}\"/" src-tauri/tauri.conf.json
+          sed -i "s/^version = \"[0-9]*\.[0-9]*\.[0-9]*\"/version = \"${VERSION}\"/" src-tauri/Cargo.toml
+          cargo update --manifest-path src-tauri/Cargo.toml --workspace
+
+      - uses: tauri-apps/tauri-action@v0
+        with:
+          releaseId: ${{ needs.create_draft_release.outputs.release_id }}
+          args: --target ${{ matrix.target }}
 
   finalize_release:
     needs: [set_version, create_draft_release, publish]
