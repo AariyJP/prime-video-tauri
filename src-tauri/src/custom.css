@@ -83,6 +83,11 @@ nav[data-testid="pv-navigation-bar"] [data-testid="pv-nav-branding"] {
 .pvt-player-fullscreen .f1kranz6 button {
     -webkit-app-region: no-drag !important;
 }
-.pvt-player-fullscreen .f14k152h {
-    transform: translateX(-138px);
+.atvwebplayersdk-hideabletopbuttons-container,
+.atvwebplayersdk-closebutton-wrapper {
+    transform: translateX(-138px) !important;
+}
+:fullscreen .atvwebplayersdk-hideabletopbuttons-container,
+:fullscreen .atvwebplayersdk-closebutton-wrapper {
+    transform: none !important;
 }
