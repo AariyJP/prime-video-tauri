@@ -3,6 +3,8 @@ use std::sync::Mutex;
 use std::time::{SystemTime, UNIX_EPOCH};
 use tauri::Manager;
 
+const EXT_CSS: &str = include_str!("custom.css");
+
 struct DiscordState {
     client: Mutex<Option<DiscordIpcClient>>,
 }
@@ -59,6 +61,11 @@ pub fn run() {
                 ""
             };
 
+            let css_inject = format!(
+                "(function(){{var s=document.createElement('style');s.id='pvt-ext-css';s.textContent={};(document.head||document.documentElement).appendChild(s);}})();",
+                serde_json::to_string(EXT_CSS).unwrap()
+            );
+
             tauri::WebviewWindowBuilder::new(
                 app,
                 "main",
@@ -72,13 +79,13 @@ pub fn run() {
             .browser_extensions_enabled(true)
             .additional_browser_args(
                 format!(
-                    "--load-extension={},{} --disable-gpu{}",
+                    "--load-extension={} --disable-gpu{}",
                     exe_dir.join("adg").to_str().unwrap(),
-                    exe_dir.join("ext").to_str().unwrap(),
                     cdp_flag
                 )
                 .as_str(),
             )
+            .initialization_script(css_inject.as_str())
             .initialization_script(include_str!("init-script.js"))
             .build()?;
 
