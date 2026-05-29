@@ -3,8 +3,6 @@ use std::sync::Mutex;
 use std::time::{SystemTime, UNIX_EPOCH};
 use tauri::Manager;
 
-const EXT_CSS: &str = include_str!("custom.css");
-
 struct DiscordState {
     client: Mutex<Option<DiscordIpcClient>>,
 }
@@ -61,12 +59,8 @@ pub fn run() {
                 ""
             };
 
-            let css_inject = format!(
-                "(function(){{var s=document.createElement('style');s.id='pvt-ext-css';s.textContent={};(document.head||document.documentElement).appendChild(s);}})();",
-                serde_json::to_string(EXT_CSS).unwrap()
-            );
-
-            tauri::WebviewWindowBuilder::new(
+            #[allow(unused_mut)]
+            let mut builder = tauri::WebviewWindowBuilder::new(
                 app,
                 "main",
                 tauri::WebviewUrl::App("https://www.amazon.co.jp/gp/video/storefront".into()),
@@ -84,14 +78,19 @@ pub fn run() {
                     cdp_flag
                 )
                 .as_str(),
-            )
-            .initialization_script(css_inject.as_str())
-            .initialization_script(include_str!("init-script.js"))
-            .build()?;
+            );
+
+            #[cfg(target_os = "windows")]
+            {
+                builder = builder
+                    .initialization_script(include_str!(concat!(env!("OUT_DIR"), "/inject.js")));
+            }
+
+            builder.build()?;
 
             Ok(())
         })
         .plugin(tauri_plugin_opener::init())
         .run(tauri::generate_context!())
-        .expect("error while running tauri application");
+        .expect("アプリケーションの起動中にエラーが発生しました。");
 }

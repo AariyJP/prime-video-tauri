@@ -1,3 +1,24 @@
+(function () {
+  var c = __PVT_CSS__;
+  function f() {
+    if (document.getElementById('pvt-ext-css')) return true;
+    var r = document.head || document.documentElement;
+    if (!r) return false;
+    var s = document.createElement('style');
+    s.id = 'pvt-ext-css';
+    s.textContent = c;
+    r.appendChild(s);
+    return true;
+  }
+  if (!f()) {
+    var o = new MutationObserver(function () {
+      if (f()) o.disconnect();
+    });
+    o.observe(document, { childList: true, subtree: true });
+    document.addEventListener('DOMContentLoaded', f, { once: true });
+  }
+})();
+
 window.__pvtVersion = '2026-05-24-f1kranz6';
 
 Object.defineProperty(window, 'EmbeddedBrowserWebView', {
