@@ -59,7 +59,8 @@ pub fn run() {
                 ""
             };
 
-            tauri::WebviewWindowBuilder::new(
+            #[allow(unused_mut)]
+            let mut builder = tauri::WebviewWindowBuilder::new(
                 app,
                 "main",
                 tauri::WebviewUrl::App("https://www.amazon.co.jp/gp/video/storefront".into()),
@@ -72,19 +73,24 @@ pub fn run() {
             .browser_extensions_enabled(true)
             .additional_browser_args(
                 format!(
-                    "--load-extension={},{} --disable-gpu{}",
+                    "--load-extension={} --disable-gpu{}",
                     exe_dir.join("adg").to_str().unwrap(),
-                    exe_dir.join("ext").to_str().unwrap(),
                     cdp_flag
                 )
                 .as_str(),
-            )
-            .initialization_script(include_str!("init-script.js"))
-            .build()?;
+            );
+
+            #[cfg(target_os = "windows")]
+            {
+                builder = builder
+                    .initialization_script(include_str!(concat!(env!("OUT_DIR"), "/inject.js")));
+            }
+
+            builder.build()?;
 
             Ok(())
         })
         .plugin(tauri_plugin_opener::init())
         .run(tauri::generate_context!())
-        .expect("error while running tauri application");
+        .expect("アプリケーションの起動中にエラーが発生しました。");
 }

@@ -22,8 +22,7 @@
       "icons/icon.ico"
     ],
     "resources": [
-      "adg",
-      "ext"
+      "adg"
     ]
   }
 }
