@@ -66,23 +66,6 @@ nav[data-testid="pv-navigation-bar"] [data-testid="pv-nav-branding"] {
     -webkit-app-region: no-drag !important;
 }
 
-.pvt-player-fullscreen #pvt-titlebar-bg {
-    background: transparent !important;
-}
-.pvt-player-fullscreen body::before {
-    display: none !important;
-}
-.pvt-player-fullscreen body {
-    padding-top: 0 !important;
-}
-.pvt-player-fullscreen .f1kranz6 {
-    -webkit-app-region: drag !important;
-    padding-left: 28px !important;
-    box-sizing: border-box !important;
-}
-.pvt-player-fullscreen .f1kranz6 button {
-    -webkit-app-region: no-drag !important;
-}
 .atvwebplayersdk-hideabletopbuttons-container,
 .atvwebplayersdk-closebutton-wrapper {
     transform: translateX(-138px) !important;
@@ -90,4 +73,83 @@ nav[data-testid="pv-navigation-bar"] [data-testid="pv-nav-branding"] {
 :fullscreen .atvwebplayersdk-hideabletopbuttons-container,
 :fullscreen .atvwebplayersdk-closebutton-wrapper {
     transform: none !important;
+}
+.atvwebplayersdk-title-text,
+.atvwebplayersdk-subtitle-text {
+    -webkit-app-region: drag !important;
+}
+#pvt-player-dragbar {
+    display: none;
+}
+.pvt-in-player #pvt-player-dragbar {
+    display: block;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 110px;
+    z-index: -1;
+    -webkit-app-region: drag;
+}
+.pvt-in-player .atvwebplayersdk-player-container button,
+.pvt-in-player .atvwebplayersdk-player-container [role="button"],
+.pvt-in-player .atvwebplayersdk-player-container a,
+.pvt-in-player .atvwebplayersdk-player-container input {
+    -webkit-app-region: no-drag !important;
+}
+
+#pvt-titlebar-bg {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 60px;
+    background: #2d2d2d;
+    z-index: 100;
+    -webkit-app-region: drag;
+}
+#pvt-window-controls,
+#pvt-back-button {
+    position: fixed;
+    top: 0;
+    z-index: 2147483647;
+    display: flex;
+    height: 60px;
+    -webkit-app-region: no-drag;
+}
+#pvt-window-controls { right: 0; }
+#pvt-back-button { left: 0; }
+#pvt-window-controls .pvt-wc-btn,
+#pvt-back-button .pvt-bb-btn {
+    width: 46px;
+    height: 60px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: transparent;
+    border: 0;
+    margin: 0;
+    padding: 0;
+    color: #ffffff;
+    font-family: "Segoe Fluent Icons", "Segoe MDL2 Assets", sans-serif;
+    font-size: 10px;
+    font-weight: 400;
+    line-height: 1;
+    cursor: pointer;
+    transition: background-color 120ms ease;
+    -webkit-app-region: no-drag;
+}
+#pvt-window-controls .pvt-wc-btn:hover,
+#pvt-back-button .pvt-bb-btn:hover {
+    background: rgba(255, 255, 255, 0.1);
+}
+#pvt-window-controls .pvt-wc-btn:active,
+#pvt-back-button .pvt-bb-btn:active {
+    background: rgba(255, 255, 255, 0.05);
+}
+#pvt-window-controls .pvt-wc-close:hover {
+    background: #e81123;
+}
+#pvt-window-controls .pvt-wc-close:active {
+    background: #f1707a;
 }

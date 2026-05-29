@@ -60,72 +60,6 @@ Object.defineProperty(window, 'chrome', {
     close: ''
   };
 
-  const STYLE = `
-#pvt-titlebar-bg {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 60px;
-  background: #2d2d2d;
-  z-index: 100;
-  -webkit-app-region: drag;
-}
-#pvt-window-controls,
-#pvt-back-button {
-  position: fixed;
-  top: 0;
-  z-index: 2147483647;
-  display: flex;
-  height: 60px;
-  -webkit-app-region: no-drag;
-}
-#pvt-window-controls { right: 0; }
-#pvt-back-button { left: 0; }
-#pvt-window-controls .pvt-wc-btn,
-#pvt-back-button .pvt-bb-btn {
-  width: 46px;
-  height: 60px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  background: transparent;
-  border: 0;
-  margin: 0;
-  padding: 0;
-  color: #ffffff;
-  font-family: "Segoe Fluent Icons", "Segoe MDL2 Assets", sans-serif;
-  font-size: 10px;
-  font-weight: 400;
-  line-height: 1;
-  cursor: pointer;
-  transition: background-color 120ms ease;
-  -webkit-app-region: no-drag;
-}
-#pvt-window-controls .pvt-wc-btn:hover,
-#pvt-back-button .pvt-bb-btn:hover {
-  background: rgba(255, 255, 255, 0.1);
-}
-#pvt-window-controls .pvt-wc-btn:active,
-#pvt-back-button .pvt-bb-btn:active {
-  background: rgba(255, 255, 255, 0.05);
-}
-#pvt-window-controls .pvt-wc-close:hover {
-  background: #e81123;
-}
-#pvt-window-controls .pvt-wc-close:active {
-  background: #f1707a;
-}
-`;
-
-  const ensureStyle = () => {
-    if (document.getElementById('pvt-window-controls-style')) return;
-    const style = document.createElement('style');
-    style.id = 'pvt-window-controls-style';
-    style.textContent = STYLE;
-    (document.head || document.documentElement).appendChild(style);
-  };
-
   const buildControls = () => {
     const container = document.createElement('div');
     container.id = 'pvt-window-controls';
@@ -150,6 +84,12 @@ Object.defineProperty(window, 'chrome', {
     return bar;
   };
 
+  const buildPlayerDragBar = (id) => {
+    const bar = document.createElement('div');
+    bar.id = id;
+    return bar;
+  };
+
   const isNavExpectedPath = () => {
     const p = location.pathname;
     return p.startsWith('/gp/video') || p === '/';
@@ -161,8 +101,8 @@ Object.defineProperty(window, 'chrome', {
     const pvNav = document.querySelector('nav[data-testid="pv-navigation-bar"]');
     const hasNav = !!pvNav || isNavExpectedPath();
     root.classList.toggle('pvt-has-nav', hasNav);
-    const playerTopbar = document.querySelector('.f1kranz6');
-    root.classList.toggle('pvt-player-fullscreen', !!playerTopbar);
+    const inPlayer = !!document.querySelector('.atvwebplayersdk-player-container');
+    root.classList.toggle('pvt-in-player', inPlayer);
   };
 
   let appWindow = null;
@@ -177,12 +117,14 @@ Object.defineProperty(window, 'chrome', {
   };
 
   const mount = async () => {
-    ensureStyle();
     const root = document.body || document.documentElement;
     if (!root) return;
 
     if (!document.getElementById('pvt-titlebar-bg')) {
       root.appendChild(buildTitleBar());
+    }
+    if (!document.getElementById('pvt-player-dragbar')) {
+      root.appendChild(buildPlayerDragBar('pvt-player-dragbar'));
     }
     updateTitleBarVisibility();
 
