@@ -66,17 +66,15 @@ nav[data-testid="pv-navigation-bar"] [data-testid="pv-nav-branding"] {
     -webkit-app-region: no-drag !important;
 }
 
-.atvwebplayersdk-hideabletopbuttons-container,
-.atvwebplayersdk-closebutton-wrapper {
-    transform: translateX(-138px) !important;
+.pvt-in-player .pvt-player-topbar {
+    transform: translateY(60px) !important;
 }
-:fullscreen .atvwebplayersdk-hideabletopbuttons-container,
-:fullscreen .atvwebplayersdk-closebutton-wrapper {
+:fullscreen .pvt-player-topbar {
     transform: none !important;
 }
 .atvwebplayersdk-title-text,
 .atvwebplayersdk-subtitle-text {
-    -webkit-app-region: drag !important;
+    -webkit-app-region: no-drag !important;
 }
 #pvt-player-dragbar {
     display: none;
@@ -87,8 +85,8 @@ nav[data-testid="pv-navigation-bar"] [data-testid="pv-nav-branding"] {
     top: 0;
     left: 0;
     right: 0;
-    height: 110px;
-    z-index: -1;
+    height: 60px;
+    z-index: 2147483646;
     -webkit-app-region: drag;
 }
 .pvt-in-player .atvwebplayersdk-player-container button,

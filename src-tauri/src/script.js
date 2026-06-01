@@ -95,14 +95,34 @@ Object.defineProperty(window, 'chrome', {
     return p.startsWith('/gp/video') || p === '/';
   };
 
+  const findPlayerTopbar = () => {
+    const title = document.querySelector('.atvwebplayersdk-title-text') || document.querySelector('.atvwebplayersdk-episode-info');
+    const settings = document.querySelector('#atvwebplayersdk-settings-button');
+    if (!title || !settings) return null;
+    let node = title.parentElement;
+    while (node && node !== document.body && !node.contains(settings)) node = node.parentElement;
+    return node && node !== document.body ? node : null;
+  };
+
+  const updatePlayerTopbar = (inPlayer) => {
+    const topbar = inPlayer ? findPlayerTopbar() : null;
+    document.querySelectorAll('.pvt-player-topbar').forEach((node) => {
+      if (node !== topbar) node.classList.remove('pvt-player-topbar');
+    });
+    if (topbar) topbar.classList.add('pvt-player-topbar');
+  };
+
   const updateTitleBarVisibility = () => {
     const root = document.documentElement;
     if (!root) return;
     const pvNav = document.querySelector('nav[data-testid="pv-navigation-bar"]');
     const hasNav = !!pvNav || isNavExpectedPath();
     root.classList.toggle('pvt-has-nav', hasNav);
-    const inPlayer = !!document.querySelector('.atvwebplayersdk-player-container');
+    const player = document.querySelector('.atvwebplayersdk-player-container');
+    const playerRect = player ? player.getBoundingClientRect() : null;
+    const inPlayer = !!playerRect && playerRect.width > 0 && playerRect.height > 0;
     root.classList.toggle('pvt-in-player', inPlayer);
+    updatePlayerTopbar(inPlayer);
   };
 
   let appWindow = null;
